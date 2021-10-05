@@ -26,7 +26,7 @@ public class JwtUtils {
 				.setHeaderParam("typ", "JWT")
 				.setSubject(username)
 				.setIssuedAt(nowDate)
-				.setExpiration(expireDate)// 7天過期
+				.setExpiration(expireDate)// 7天
 				.signWith(SignatureAlgorithm.HS512, secret)
 				.compact();
 	}

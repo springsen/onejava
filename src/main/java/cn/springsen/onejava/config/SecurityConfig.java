@@ -1,9 +1,11 @@
 package cn.springsen.onejava.config;
 
 import cn.springsen.onejava.security.CaptchaFilter;
+import cn.springsen.onejava.security.JwtAuthenticationFilter;
 import cn.springsen.onejava.security.LoginFailureHandler;
 import cn.springsen.onejava.security.LoginSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +27,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private CaptchaFilter captchaFilter;
+
+    @Bean
+    JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager());
+        return jwtAuthenticationFilter;
+    }
 
     private static final String[] URL_WHITELIST = {
             "/login",
@@ -60,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // 配置自定义过滤器
                 .and()
+                .addFilter(jwtAuthenticationFilter())
                 .addFilterBefore(captchaFilter, UsernamePasswordAuthenticationFilter.class)
         ;
     }
