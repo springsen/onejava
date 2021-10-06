@@ -6,6 +6,7 @@ import cn.springsen.onejava.service.SysUserService;
 import cn.springsen.onejava.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,13 +19,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+@Slf4j
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
 	@Autowired
 	JwtUtils jwtUtils;
 
-//	@Autowired
-//	UserDetailServiceImpl userDetailService;
+	@Autowired
+	UserDetailServiceImpl userDetailService;
 
 	@Autowired
 	SysUserService sysUserService;
@@ -47,15 +49,16 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 			throw new JwtException("token 异常");
 		}
 		if (jwtUtils.isTokenExpired(claim)) {
-			throw new JwtException("token已过期");
+			throw new JwtException("token 已过期");
 		}
 
 		String username = claim.getSubject();
 		// 获取用户的权限等信息
 
 		SysUser sysUser = sysUserService.getByUsername(username);
+		log.info("用户-{}，正在登陆！", username);
 		UsernamePasswordAuthenticationToken token
-				= new UsernamePasswordAuthenticationToken(username, null, null);
+				= new UsernamePasswordAuthenticationToken(username, null, userDetailService.getUserAuthority(sysUser.getId()));
 
 		SecurityContextHolder.getContext().setAuthentication(token);
 
